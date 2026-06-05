@@ -251,7 +251,11 @@
         <div class="form-group"><label>To Date</label><input type="date" id="r-to" /></div>
         <div class="form-group">
           <label>Area Name</label>
-          <select id="r-area"><option value="">-- All Areas --</option></select>
+          <div class="area-search-wrap">
+            <input type="text" class="area-search-input" id="r-area-input" placeholder="Search area..." autocomplete="off" />
+            <input type="hidden" id="r-area-value" />
+            <div class="area-dropdown" id="r-area-dropdown"></div>
+          </div>
         </div>
         <button class="btn-filter" onclick="renderReport()">🔍 Get Report</button>
         <button class="btn-print"  onclick="window.print()">🖨️ Print</button>
@@ -420,6 +424,35 @@
       const opts = areas.map(a => `<option value="${a.areaName}">${a.areaName}</option>`).join('');
       document.getElementById('r-area').innerHTML = '<option value="">-- All Areas --</option>' + opts;
       buildAreaSearchDropdown();
+      buildReportAreaSearchDropdown();
+    }
+
+    function buildReportAreaSearchDropdown() {
+      const input    = document.getElementById('r-area-input');
+      const hidden   = document.getElementById('r-area-value');
+      const dropdown = document.getElementById('r-area-dropdown');
+
+      function renderOptions(filter) {
+        const list = filter
+          ? areas.filter(a => a.areaName.toLowerCase().includes(filter.toLowerCase()))
+          : areas;
+        dropdown.innerHTML = '<div class="area-option" data-val="">-- All Areas --</div>' +
+          (list.length
+            ? list.map(a => `<div class="area-option" data-val="${a.areaName}">${a.areaName}</div>`).join('')
+            : '<div class="area-option" style="color:#aaa">No areas found</div>');
+        dropdown.querySelectorAll('.area-option[data-val]').forEach(opt => {
+          opt.addEventListener('mousedown', e => {
+            e.preventDefault();
+            hidden.value = opt.dataset.val;
+            input.value  = opt.dataset.val || '';
+            dropdown.classList.remove('open');
+          });
+        });
+      }
+
+      input.addEventListener('focus', () => { renderOptions(input.value); dropdown.classList.add('open'); });
+      input.addEventListener('input', () => { hidden.value = ''; renderOptions(input.value); dropdown.classList.add('open'); });
+      input.addEventListener('blur',  () => { setTimeout(() => dropdown.classList.remove('open'), 150); });
     }
 
     function buildAreaSearchDropdown() {
@@ -578,7 +611,7 @@
     function renderReport() {
       const from = document.getElementById('r-from').value;
       const to   = document.getElementById('r-to').value;
-      const areaFilter = document.getElementById('r-area').value;
+      const areaFilter = document.getElementById('r-area-value').value;
 
       const cols = [...collections]
         .filter(r => (!from || r.date >= from) && (!to || r.date <= to) && (!areaFilter || r.area === areaFilter))
