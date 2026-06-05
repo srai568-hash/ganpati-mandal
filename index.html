@@ -76,6 +76,17 @@
     .card-value { font-size: 1.3rem; font-weight: 700; margin-top: 5px; }
 
     .no-data { text-align: center; color: #aaa; padding: 18px; font-style: italic; font-size: 0.85rem; }
+    .area-search-wrap { position: relative; }
+    .area-search-input { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
+    .area-search-input:focus { border-color: #ff6b00; }
+    .area-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid #ff6b00; border-radius: 8px; max-height: 180px; overflow-y: auto; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .area-dropdown.open { display: block; }
+    .area-option { padding: 9px 12px; cursor: pointer; font-size: 0.95rem; }
+    .area-option:hover, .area-option.selected { background: #fff3e0; color: #ff6b00; font-weight: 600; }
+    .summary-filter { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding: 12px; background: #fff8f0; border-radius: 10px; border: 1px solid #ffe0b2; flex-wrap: wrap; }
+    .summary-filter label { font-size: 0.75rem; font-weight: 600; color: #555; text-transform: uppercase; white-space: nowrap; }
+    .summary-filter select { padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.95rem; outline: none; min-width: 150px; }
+    .summary-filter select:focus { border-color: #ff6b00; }
 
     .loading-overlay { position: fixed; inset: 0; background: rgba(255,107,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: white; gap: 14px; }
     .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -174,9 +185,11 @@
           <div class="form-group"><label>Collected By</label><input type="text" name="collectedBy" placeholder="Person name" required /></div>
           <div class="form-group">
             <label>Area Name</label>
-            <select name="area" id="col-area-select" required>
-              <option value="">-- Select Area --</option>
-            </select>
+            <div class="area-search-wrap">
+              <input type="text" class="area-search-input" id="col-area-input" placeholder="Search area..." autocomplete="off" />
+              <input type="hidden" name="area" id="col-area-value" />
+              <div class="area-dropdown" id="col-area-dropdown"></div>
+            </div>
           </div>
           <div class="form-group"><label>Sub Area</label><input type="text" name="subArea" placeholder="Sub area / Street" /></div>
           <div class="form-group"><label>GPay Amount (₹)</label><input type="number" name="gpay" min="0" step="0.01" placeholder="0.00" /></div>
@@ -267,6 +280,10 @@
     <!-- Tab 4: Summary -->
     <div id="tab-summary" class="tab-content">
       <h2>📈 Overall Summary</h2>
+      <div class="summary-filter">
+        <label>Financial Year</label>
+        <select id="s-fin-year" onchange="renderSummary()"><option value="">-- All Years --</option><option value="2026-2027" selected>2026-2027</option></select>
+      </div>
       <div class="summary-cards">
         <div class="card green"><div class="card-label">Total Collection</div><div class="card-value" id="s-total-col">₹0</div></div>
         <div class="card blue"><div class="card-label">GPay Collected</div><div class="card-value" id="s-gpay">₹0</div></div>
@@ -401,8 +418,33 @@
 
     function populateAreaDropdowns() {
       const opts = areas.map(a => `<option value="${a.areaName}">${a.areaName}</option>`).join('');
-      document.getElementById('col-area-select').innerHTML = '<option value="">-- Select Area --</option>' + opts;
-      document.getElementById('r-area').innerHTML          = '<option value="">-- All Areas --</option>'   + opts;
+      document.getElementById('r-area').innerHTML = '<option value="">-- All Areas --</option>' + opts;
+      buildAreaSearchDropdown();
+    }
+
+    function buildAreaSearchDropdown() {
+      const input    = document.getElementById('col-area-input');
+      const hidden   = document.getElementById('col-area-value');
+      const dropdown = document.getElementById('col-area-dropdown');
+
+      function renderOptions(filter) {
+        const filtered = areas.filter(a => a.areaName.toLowerCase().includes(filter.toLowerCase()));
+        dropdown.innerHTML = filtered.length
+          ? filtered.map(a => `<div class="area-option" data-val="${a.areaName}">${a.areaName}</div>`).join('')
+          : '<div class="area-option" style="color:#aaa">No areas found</div>';
+        dropdown.querySelectorAll('.area-option[data-val]').forEach(opt => {
+          opt.addEventListener('mousedown', e => {
+            e.preventDefault();
+            input.value  = opt.dataset.val;
+            hidden.value = opt.dataset.val;
+            dropdown.classList.remove('open');
+          });
+        });
+      }
+
+      input.addEventListener('focus', () => { renderOptions(input.value); dropdown.classList.add('open'); });
+      input.addEventListener('input', () => { hidden.value = ''; renderOptions(input.value); dropdown.classList.add('open'); });
+      input.addEventListener('blur',  () => { setTimeout(() => dropdown.classList.remove('open'), 150); });
     }
 
     window.switchTab = function (id) {
@@ -453,18 +495,20 @@
       if (!this.finYear.value)            { showToast('⚠️ Select Financial Year', '#e53935'); return; }
       if (!this.date.value)               { showToast('⚠️ Select Date', '#e53935'); return; }
       if (!this.collectedBy.value.trim()) { showToast('⚠️ Enter Collected By name', '#e53935'); return; }
-      if (!this.area.value)               { showToast('⚠️ Select Area Name', '#e53935'); return; }
+      if (!document.getElementById('col-area-value').value) { showToast('⚠️ Select Area Name from dropdown', '#e53935'); return; }
       if (gpay <= 0 && cash <= 0)         { showToast('⚠️ Enter GPay or Cash amount', '#e53935'); return; }
       if (!this.verifiedBy.value.trim())  { showToast('⚠️ Enter Verified By name', '#e53935'); return; }
       const btn = this.querySelector('.btn-submit'); btn.disabled = true;
       await addDoc(collection(db, 'collections'), {
         finYear: this.finYear.value,
         date: this.date.value, collectedBy: this.collectedBy.value.trim(),
-        area: this.area.value, subArea: this.subArea.value.trim(),
+        area: document.getElementById('col-area-value').value, subArea: this.subArea.value.trim(),
         gpay, cash, total: gpay + cash,
         verifiedBy: this.verifiedBy.value.trim(), createdAt: Date.now()
       });
       showToast('✅ Collection saved!', '#43a047');
+      document.getElementById('col-area-input').value = '';
+      document.getElementById('col-area-value').value = '';
       this.reset(); this.date.value = today(); btn.disabled = false;
     });
 
@@ -569,10 +613,14 @@
 
     // ── Summary ───────────────────────────────────────────────────
     function renderSummary() {
-      const totalCol  = collections.reduce((s,r) => s + r.total,  0);
-      const totalGpay = collections.reduce((s,r) => s + r.gpay,   0);
-      const totalCash = collections.reduce((s,r) => s + r.cash,   0);
-      const totalExp  = expenses.reduce((s,r)    => s + r.amount, 0);
+      const fy = document.getElementById('s-fin-year').value;
+      const filteredCols = fy ? collections.filter(r => r.finYear === fy) : collections;
+      const filteredExps = fy ? expenses.filter(r => r.finYear === fy)    : expenses;
+
+      const totalCol  = filteredCols.reduce((s,r) => s + r.total,  0);
+      const totalGpay = filteredCols.reduce((s,r) => s + r.gpay,   0);
+      const totalCash = filteredCols.reduce((s,r) => s + r.cash,   0);
+      const totalExp  = filteredExps.reduce((s,r) => s + r.amount, 0);
       const balance   = totalCol - totalExp;
 
       document.getElementById('s-total-col').textContent = fmt(totalCol);
@@ -583,12 +631,12 @@
       document.getElementById('s-balance-card').className = 'card ' + (balance >= 0 ? 'green' : 'red');
 
       const days = {};
-      collections.forEach(r => { if (!days[r.date]) days[r.date]={col:0,exp:0}; days[r.date].col += r.total; });
-      expenses.forEach(r    => { if (!days[r.date]) days[r.date]={col:0,exp:0}; days[r.date].exp += r.amount; });
+      filteredCols.forEach(r => { if (!days[r.date]) days[r.date]={col:0,exp:0}; days[r.date].col += r.total; });
+      filteredExps.forEach(r => { if (!days[r.date]) days[r.date]={col:0,exp:0}; days[r.date].exp += r.amount; });
 
       const sortedDays = Object.keys(days).sort();
       const tbody = document.getElementById('summary-day-tbody');
-      if (!sortedDays.length) { tbody.innerHTML='<tr><td colspan="4" class="no-data">No data yet</td></tr>'; return; }
+      if (!sortedDays.length) { tbody.innerHTML='<tr><td colspan="4" class="no-data">No data for selected year</td></tr>'; return; }
       let bal = 0;
       tbody.innerHTML = sortedDays.map(d => {
         bal += days[d].col - days[d].exp;
