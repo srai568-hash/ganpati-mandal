@@ -456,7 +456,12 @@
       const dropdown = document.getElementById(dropdownId);
       input.addEventListener('focus', () => { renderAreaOptions(inputId, hiddenId, dropdownId, showAll); dropdown.classList.add('open'); });
       input.addEventListener('input', () => { hidden.value = ''; renderAreaOptions(inputId, hiddenId, dropdownId, showAll); dropdown.classList.add('open'); });
-      input.addEventListener('blur',  () => { setTimeout(() => dropdown.classList.remove('open'), 200); });
+      input.addEventListener('blur',  () => {
+        setTimeout(() => {
+          dropdown.classList.remove('open');
+          if (!hidden.value) input.value = '';
+        }, 200);
+      });
     }
 
     window.switchTab = function (id) {
