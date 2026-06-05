@@ -7,29 +7,23 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #ff6b00, #ff9500, #ffd700); min-height: 100vh; padding: 10px 8px 30px; }
-
     .app-header { text-align: center; padding: 18px 10px 8px; color: white; }
     .app-header h1 { font-size: 1.6rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); letter-spacing: 1px; }
     .app-header p  { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
     .sync-status { text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.9); margin: 4px 0; min-height: 16px; }
-
     .tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
     .tab-btn { padding: 8px 14px; border: 2px solid white; background: rgba(255,255,255,0.2); color: white; border-radius: 25px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
     .tab-btn.active { background: white; color: #ff6b00; }
-
     .tab-content { display: none; max-width: 700px; margin: 0 auto; background: white; border-radius: 16px; padding: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
     .tab-content.active { display: block; }
     .tab-content h2 { color: #ff6b00; margin-bottom: 16px; font-size: 1.1rem; border-bottom: 2px solid #ffd700; padding-bottom: 8px; }
-
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     label { font-size: 0.75rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.4px; }
     input, select { padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; width: 100%; }
     input:focus, select:focus { border-color: #ff6b00; }
-
     .btn-submit { width: 100%; padding: 13px; background: linear-gradient(135deg, #ff6b00, #ffd700); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
     .records-section { margin-top: 22px; }
     .records-section h3 { color: #ff6b00; margin-bottom: 10px; font-size: 0.95rem; }
     .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #eee; }
@@ -38,15 +32,12 @@
     th, td { padding: 8px 9px; text-align: left; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
     tbody tr:hover { background: #fff8f0; }
     .btn-delete { background: #e53935; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
-
     .filter-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 18px; padding: 12px; background: #fff8f0; border-radius: 10px; border: 1px solid #ffe0b2; }
     .filter-row .form-group { flex: 1; min-width: 130px; }
     .btn-filter { padding: 10px 18px; background: #ff6b00; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
     .btn-print  { padding: 10px 18px; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
-
     .report-section { margin-bottom: 18px; }
     .report-section h3 { color: #ff6b00; margin-bottom: 8px; font-size: 0.95rem; }
-
     .summary-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .card { padding: 16px 12px; border-radius: 12px; text-align: center; box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
     .card.green  { background: linear-gradient(135deg, #43a047, #66bb6a); color: white; }
@@ -55,17 +46,13 @@
     .card.blue   { background: linear-gradient(135deg, #1e88e5, #42a5f5); color: white; }
     .card-label { font-size: 0.72rem; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.4px; }
     .card-value { font-size: 1.3rem; font-weight: 700; margin-top: 5px; }
-
     .no-data { text-align: center; color: #aaa; padding: 18px; font-style: italic; font-size: 0.85rem; }
-
     .loading-overlay { position: fixed; inset: 0; background: rgba(255,107,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: white; gap: 14px; }
     .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); color: white; padding: 11px 22px; border-radius: 25px; font-size: 0.88rem; font-weight: 600; z-index: 9999; white-space: nowrap; animation: fadeInOut 2.5s ease forwards; }
     @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)} 15%{opacity:1;transform:translateX(-50%) translateY(0)} 75%{opacity:1} 100%{opacity:0} }
-
-    @media (max-width: 400px) { .form-grid { grid-template-columns: 1fr; } .tabs .tab-btn { font-size: 0.72rem; padding: 7px 10px; } }
+    @media (max-width: 400px) { .form-grid { grid-template-columns: 1fr; } .tabs .tab-btn { font-size: 0.7rem; padding: 7px 9px; } }
     @media print {
       body { background: white; }
       .tabs, .app-header, .sync-status, .filter-row, .btn-print, .btn-filter, .btn-delete, .btn-submit, .records-section, .loading-overlay { display: none !important; }
@@ -76,7 +63,6 @@
 </head>
 <body>
 
-  <!-- Loading overlay -->
   <div class="loading-overlay" id="loading">
     <div class="spinner"></div>
     <div style="font-size:1rem;font-weight:600;">Connecting to database...</div>
@@ -89,22 +75,51 @@
   <div class="sync-status" id="sync-status">🔄 Syncing...</div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="tab-collection" onclick="switchTab('tab-collection')">💰 Collection</button>
+    <button class="tab-btn active" data-tab="tab-area"       onclick="switchTab('tab-area')">🗺️ Area Master</button>
+    <button class="tab-btn"        data-tab="tab-collection" onclick="switchTab('tab-collection')">💰 Collection</button>
     <button class="tab-btn"        data-tab="tab-expense"    onclick="switchTab('tab-expense')">📋 Expense</button>
     <button class="tab-btn"        data-tab="tab-report"     onclick="switchTab('tab-report')">📊 Report</button>
     <button class="tab-btn"        data-tab="tab-summary"    onclick="switchTab('tab-summary')">📈 Summary</button>
   </div>
 
+  <!-- Tab 0: Area Master -->
+  <div id="tab-area" class="tab-content active">
+    <h2>🗺️ Area Master</h2>
+    <form id="form-area">
+      <div class="form-grid">
+        <div class="form-group"><label>Area Name</label><input type="text" name="areaName" placeholder="e.g. Shivaji Nagar" required /></div>
+        <div class="form-group"><label>Remark</label><input type="text" name="remark" placeholder="Optional" /></div>
+      </div>
+      <button type="submit" class="btn-submit">✅ Save Area</button>
+    </form>
+    <div class="records-section">
+      <h3>Area List</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Area Name</th><th>Remark</th><th></th></tr></thead>
+          <tbody id="area-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Tab 1: Collection -->
-  <div id="tab-collection" class="tab-content active">
+  <div id="tab-collection" class="tab-content">
     <h2>💰 Collection Entry</h2>
     <form id="form-collection">
       <div class="form-grid">
         <div class="form-group"><label>Date</label><input type="date" name="date" required /></div>
         <div class="form-group"><label>Collected By</label><input type="text" name="collectedBy" placeholder="Person name" required /></div>
-        <div class="form-group"><label>Area Name</label><input type="text" name="area" placeholder="Area / Society" required /></div>
+        <div class="form-group">
+          <label>Area Name</label>
+          <select name="area" id="col-area-select" required>
+            <option value="">-- Select Area --</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Sub Area</label><input type="text" name="subArea" placeholder="Sub area / Street" /></div>
         <div class="form-group"><label>GPay Amount (₹)</label><input type="number" name="gpay" min="0" step="0.01" placeholder="0.00" /></div>
         <div class="form-group"><label>Cash Amount (₹)</label><input type="number" name="cash" min="0" step="0.01" placeholder="0.00" /></div>
+        <div class="form-group"><label>Verified By</label><input type="text" name="verifiedBy" placeholder="Verifier name" /></div>
       </div>
       <button type="submit" class="btn-submit">✅ Save Collection</button>
     </form>
@@ -112,7 +127,7 @@
       <h3>Recent Collections</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Collected By</th><th>Area</th><th>GPay</th><th>Cash</th><th>Total</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Collected By</th><th>Area</th><th>Sub Area</th><th>GPay</th><th>Cash</th><th>Total</th><th>Verified By</th><th></th></tr></thead>
           <tbody id="collection-tbody"></tbody>
         </table>
       </div>
@@ -136,6 +151,7 @@
             <option value="Cash">Cash</option>
           </select>
         </div>
+        <div class="form-group"><label>Verified By</label><input type="text" name="verifiedBy" placeholder="Verifier name" /></div>
         <div class="form-group"><label>Remark</label><input type="text" name="remark" placeholder="Optional" /></div>
       </div>
       <button type="submit" class="btn-submit">✅ Save Expense</button>
@@ -144,7 +160,7 @@
       <h3>Recent Expenses</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Expense</th><th>Done By</th><th>Amount</th><th>Through</th><th>Remark</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Expense</th><th>Done By</th><th>Amount</th><th>Through</th><th>Verified By</th><th>Remark</th><th></th></tr></thead>
           <tbody id="expense-tbody"></tbody>
         </table>
       </div>
@@ -157,6 +173,12 @@
     <div class="filter-row">
       <div class="form-group"><label>From Date</label><input type="date" id="r-from" /></div>
       <div class="form-group"><label>To Date</label><input type="date" id="r-to" /></div>
+      <div class="form-group">
+        <label>Area Name</label>
+        <select id="r-area">
+          <option value="">-- All Areas --</option>
+        </select>
+      </div>
       <button class="btn-filter" onclick="renderReport()">🔍 Get Report</button>
       <button class="btn-print"  onclick="window.print()">🖨️ Print</button>
     </div>
@@ -164,7 +186,7 @@
       <h3>Collection Details</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Collected By</th><th>Area</th><th>GPay</th><th>Cash</th><th>Total</th></tr></thead>
+          <thead><tr><th>Date</th><th>Collected By</th><th>Area</th><th>Sub Area</th><th>GPay</th><th>Cash</th><th>Total</th><th>Verified By</th></tr></thead>
           <tbody id="report-col-tbody"></tbody>
         </table>
       </div>
@@ -173,7 +195,7 @@
       <h3>Expense Details</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Expense</th><th>Done By</th><th>Amount</th><th>Through</th><th>Remark</th></tr></thead>
+          <thead><tr><th>Date</th><th>Expense</th><th>Done By</th><th>Amount</th><th>Through</th><th>Verified By</th><th>Remark</th></tr></thead>
           <tbody id="report-exp-tbody"></tbody>
         </table>
       </div>
@@ -205,13 +227,11 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp }                           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { initializeApp }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, orderBy, query }
-                                                       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+                                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-    // ── 🔧 REPLACE WITH YOUR FIREBASE CONFIG ──────────────────────
     const firebaseConfig = {
       apiKey:            "AIzaSyAAJ4YdcQggAXFdcPbpyizm5og8NcdaA24",
       authDomain:        "ganpati-mandal-e753d.firebaseapp.com",
@@ -220,7 +240,6 @@
       messagingSenderId: "767204968663",
       appId:             "1:767204968663:web:f313351c6c4ae5d9dec892"
     };
-    // ──────────────────────────────────────────────────────────────
 
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
@@ -229,6 +248,7 @@
     const fmtD  = s => s ? new Date(s).toLocaleDateString('en-IN') : '';
     const today = () => new Date().toISOString().split('T')[0];
 
+    let areas       = [];
     let collections = [];
     let expenses    = [];
 
@@ -252,27 +272,73 @@
     }
     window.switchTab = switchTab;
 
+    // ── Populate area dropdowns ───────────────────────────────────
+    function populateAreaDropdowns() {
+      const opts = areas.map(a => `<option value="${a.areaName}">${a.areaName}</option>`).join('');
+      document.getElementById('col-area-select').innerHTML = '<option value="">-- Select Area --</option>' + opts;
+      document.getElementById('r-area').innerHTML          = '<option value="">-- All Areas --</option>'   + opts;
+    }
+
     // ── Real-time listeners ───────────────────────────────────────
+    onSnapshot(query(collection(db, 'areas'), orderBy('areaName')), snap => {
+      areas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAreaTable();
+      populateAreaDropdowns();
+      document.getElementById('loading').style.display = 'none';
+      setStatus('✅ Live sync • ' + new Date().toLocaleTimeString('en-IN'));
+    });
+
     onSnapshot(query(collection(db, 'collections'), orderBy('date', 'desc')), snap => {
       collections = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderCollectionTable();
       renderSummaryIfActive();
-      setStatus('✅ Live sync • ' + new Date().toLocaleTimeString('en-IN'));
       document.getElementById('loading').style.display = 'none';
+      setStatus('✅ Live sync • ' + new Date().toLocaleTimeString('en-IN'));
     });
 
     onSnapshot(query(collection(db, 'expenses'), orderBy('date', 'desc')), snap => {
       expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderExpenseTable();
       renderSummaryIfActive();
-      setStatus('✅ Live sync • ' + new Date().toLocaleTimeString('en-IN'));
       document.getElementById('loading').style.display = 'none';
+      setStatus('✅ Live sync • ' + new Date().toLocaleTimeString('en-IN'));
     });
 
     function renderSummaryIfActive() {
       if (document.getElementById('tab-summary').classList.contains('active')) renderSummary();
       if (document.getElementById('tab-report').classList.contains('active'))  renderReport();
     }
+
+    // ── Area Master ───────────────────────────────────────────────
+    document.getElementById('form-area').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = this.querySelector('.btn-submit');
+      btn.disabled = true;
+      await addDoc(collection(db, 'areas'), {
+        areaName: this.areaName.value.trim(),
+        remark:   this.remark.value.trim(),
+        createdAt: Date.now()
+      });
+      showToast('✅ Area saved!', '#43a047');
+      this.reset();
+      btn.disabled = false;
+    });
+
+    function renderAreaTable() {
+      const tbody = document.getElementById('area-tbody');
+      tbody.innerHTML = areas.length
+        ? areas.map((a, i) => `<tr>
+            <td>${i + 1}</td><td>${a.areaName}</td><td>${a.remark || '-'}</td>
+            <td><button class="btn-delete" onclick="deleteArea('${a.id}')">🗑</button></td>
+          </tr>`).join('')
+        : '<tr><td colspan="4" class="no-data">No areas added yet</td></tr>';
+    }
+
+    window.deleteArea = async function (id) {
+      if (!confirm('Delete this area?')) return;
+      await deleteDoc(doc(db, 'areas', id));
+      showToast('🗑️ Deleted', '#e53935');
+    };
 
     // ── Collection ────────────────────────────────────────────────
     document.getElementById('form-collection').addEventListener('submit', async function (e) {
@@ -282,11 +348,13 @@
       const gpay = parseFloat(this.gpay.value) || 0;
       const cash = parseFloat(this.cash.value) || 0;
       await addDoc(collection(db, 'collections'), {
-        date: this.date.value,
+        date:        this.date.value,
         collectedBy: this.collectedBy.value.trim(),
-        area: this.area.value.trim(),
-        gpay, cash, total: gpay + cash,
-        createdAt: Date.now()
+        area:        this.area.value,
+        subArea:     this.subArea.value.trim(),
+        gpay, cash,  total: gpay + cash,
+        verifiedBy:  this.verifiedBy.value.trim(),
+        createdAt:   Date.now()
       });
       showToast('✅ Collection saved!', '#43a047');
       this.reset(); this.date.value = today();
@@ -298,13 +366,14 @@
       tbody.innerHTML = collections.length
         ? collections.map(r => `<tr>
             <td>${fmtD(r.date)}</td><td>${r.collectedBy}</td><td>${r.area}</td>
-            <td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td><td>${fmt(r.total)}</td>
+            <td>${r.subArea || '-'}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td>
+            <td>${fmt(r.total)}</td><td>${r.verifiedBy || '-'}</td>
             <td><button class="btn-delete" onclick="deleteC('${r.id}')">🗑</button></td>
           </tr>`).join('')
-        : '<tr><td colspan="7" class="no-data">No records yet</td></tr>';
+        : '<tr><td colspan="9" class="no-data">No records yet</td></tr>';
     }
 
-    window.deleteC = async function(id) {
+    window.deleteC = async function (id) {
       if (!confirm('Delete this record?')) return;
       await deleteDoc(doc(db, 'collections', id));
       showToast('🗑️ Deleted', '#e53935');
@@ -316,13 +385,14 @@
       const btn = this.querySelector('.btn-submit');
       btn.disabled = true;
       await addDoc(collection(db, 'expenses'), {
-        date: this.date.value,
+        date:        this.date.value,
         expenseName: this.expenseName.value.trim(),
-        doneBy: this.doneBy.value.trim(),
-        through: this.through.value,
-        amount: parseFloat(this.amount.value) || 0,
-        remark: this.remark.value.trim(),
-        createdAt: Date.now()
+        doneBy:      this.doneBy.value.trim(),
+        through:     this.through.value,
+        amount:      parseFloat(this.amount.value) || 0,
+        verifiedBy:  this.verifiedBy.value.trim(),
+        remark:      this.remark.value.trim(),
+        createdAt:   Date.now()
       });
       showToast('✅ Expense saved!', '#43a047');
       this.reset(); this.date.value = today();
@@ -334,13 +404,14 @@
       tbody.innerHTML = expenses.length
         ? expenses.map(r => `<tr>
             <td>${fmtD(r.date)}</td><td>${r.expenseName}</td><td>${r.doneBy}</td>
-            <td>${fmt(r.amount)}</td><td>${r.through}</td><td>${r.remark || '-'}</td>
+            <td>${fmt(r.amount)}</td><td>${r.through}</td><td>${r.verifiedBy || '-'}</td>
+            <td>${r.remark || '-'}</td>
             <td><button class="btn-delete" onclick="deleteE('${r.id}')">🗑</button></td>
           </tr>`).join('')
-        : '<tr><td colspan="7" class="no-data">No records yet</td></tr>';
+        : '<tr><td colspan="8" class="no-data">No records yet</td></tr>';
     }
 
-    window.deleteE = async function(id) {
+    window.deleteE = async function (id) {
       if (!confirm('Delete this record?')) return;
       await deleteDoc(doc(db, 'expenses', id));
       showToast('🗑️ Deleted', '#e53935');
@@ -348,22 +419,36 @@
 
     // ── Report ────────────────────────────────────────────────────
     function renderReport() {
-      const from = document.getElementById('r-from').value;
-      const to   = document.getElementById('r-to').value;
-      const cols = [...collections].filter(r => (!from || r.date >= from) && (!to || r.date <= to)).sort((a,b) => a.date.localeCompare(b.date));
-      const exps = [...expenses].filter(r => (!from || r.date >= from) && (!to || r.date <= to)).sort((a,b) => a.date.localeCompare(b.date));
+      const from     = document.getElementById('r-from').value;
+      const to       = document.getElementById('r-to').value;
+      const areaFilter = document.getElementById('r-area').value;
+
+      const cols = [...collections]
+        .filter(r => (!from || r.date >= from) && (!to || r.date <= to) && (!areaFilter || r.area === areaFilter))
+        .sort((a,b) => a.date.localeCompare(b.date));
+      const exps = [...expenses]
+        .filter(r => (!from || r.date >= from) && (!to || r.date <= to))
+        .sort((a,b) => a.date.localeCompare(b.date));
+
       const totalCol = cols.reduce((s,r) => s + r.total,  0);
       const totalExp = exps.reduce((s,r) => s + r.amount, 0);
 
       document.getElementById('report-col-tbody').innerHTML = cols.length
-        ? cols.map(r => `<tr><td>${fmtD(r.date)}</td><td>${r.collectedBy}</td><td>${r.area}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td><td>${fmt(r.total)}</td></tr>`).join('') +
-          `<tr style="font-weight:700;background:#fff8f0"><td colspan="5">Total Collection</td><td>${fmt(totalCol)}</td></tr>`
-        : '<tr><td colspan="6" class="no-data">No records in this range</td></tr>';
+        ? cols.map(r => `<tr>
+            <td>${fmtD(r.date)}</td><td>${r.collectedBy}</td><td>${r.area}</td>
+            <td>${r.subArea||'-'}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td>
+            <td>${fmt(r.total)}</td><td>${r.verifiedBy||'-'}</td>
+          </tr>`).join('') +
+          `<tr style="font-weight:700;background:#fff8f0"><td colspan="6">Total Collection</td><td>${fmt(totalCol)}</td><td></td></tr>`
+        : '<tr><td colspan="8" class="no-data">No records in this range</td></tr>';
 
       document.getElementById('report-exp-tbody').innerHTML = exps.length
-        ? exps.map(r => `<tr><td>${fmtD(r.date)}</td><td>${r.expenseName}</td><td>${r.doneBy}</td><td>${fmt(r.amount)}</td><td>${r.through}</td><td>${r.remark||'-'}</td></tr>`).join('') +
-          `<tr style="font-weight:700;background:#fff8f0"><td colspan="3">Total Expense</td><td>${fmt(totalExp)}</td><td colspan="2"></td></tr>`
-        : '<tr><td colspan="6" class="no-data">No records in this range</td></tr>';
+        ? exps.map(r => `<tr>
+            <td>${fmtD(r.date)}</td><td>${r.expenseName}</td><td>${r.doneBy}</td>
+            <td>${fmt(r.amount)}</td><td>${r.through}</td><td>${r.verifiedBy||'-'}</td><td>${r.remark||'-'}</td>
+          </tr>`).join('') +
+          `<tr style="font-weight:700;background:#fff8f0"><td colspan="3">Total Expense</td><td>${fmt(totalExp)}</td><td colspan="3"></td></tr>`
+        : '<tr><td colspan="7" class="no-data">No records in this range</td></tr>';
 
       document.getElementById('report-net').textContent = `Net Balance: ${fmt(totalCol - totalExp)}`;
     }
