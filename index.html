@@ -118,7 +118,7 @@
     <div class="login-card">
       <!-- Ganpati Image from public domain -->
       <div class="ganpati-icon">🙏</div>
-      <div class="login-title-marathi">🪔 गणेशमार्ग सार्वजनिक<br/>गणेशोत्सव मंडळ</div>
+      <div class="login-title-marathi">🪔 गणेशमार्ग सार्वजनिक<br/>श्री गणेशोत्सव मंडळ</div>
       <div class="login-subtitle">Collection & Expense Manager</div>
       <div class="form-group">
         <label>Username</label>
@@ -137,7 +137,7 @@
   <div class="app-screen" id="app-screen">
 
     <div class="app-header">
-      <h1>🪔 गणेशमार्ग सार्वजनिक गणेशोत्सव मंडळ</h1>
+      <h1>🪔 गणेशमार्ग सार्वजनिक श्री गणेशोत्सव मंडळ</h1>
       <p>Collection & Expense Manager</p>
     </div>
 
@@ -703,7 +703,7 @@
       rows.push(['--- EXPENSE DETAILS ---']);
       rows.push(['Fin Year','Date','Expense','Done By','Amount','Through','Verified By','Remark']);
       exps.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.expenseName, r.doneBy, r.amount, r.through, r.verifiedBy||'', r.remark||'']));
-      rows.push(['','','','','Total Expense', '', '', '']);
+      rows.push(['','','','Total Expense', totalExp, '', '', '']);
       rows.push([]);
       rows.push(['Net Balance', totalCol - totalExp]);
 
