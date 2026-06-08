@@ -696,12 +696,14 @@
       rows.push(['--- COLLECTION DETAILS ---']);
       rows.push(['Fin Year','Date','Collected By','Area','Sub Area','GPay','Cash','Total','Verified By']);
       cols.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.collectedBy, r.area, r.subArea||'', r.gpay, r.cash, r.total, r.verifiedBy||'']));
-      rows.push(['','','','','','','','Total Collection', totalCol]);
+      rows.push(['','','','','','','Total GPay', cols.reduce((s,r)=>s+r.gpay,0), '']);
+      rows.push(['','','','','','','Total Cash', cols.reduce((s,r)=>s+r.cash,0), '']);
+      rows.push(['','','','','','','Total Collection', totalCol, '']);
       rows.push([]);
       rows.push(['--- EXPENSE DETAILS ---']);
       rows.push(['Fin Year','Date','Expense','Done By','Amount','Through','Verified By','Remark']);
       exps.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.expenseName, r.doneBy, r.amount, r.through, r.verifiedBy||'', r.remark||'']));
-      rows.push(['','','','Total Expense', totalExp]);
+      rows.push(['','','','','Total Expense', '', '', '']);
       rows.push([]);
       rows.push(['Net Balance', totalCol - totalExp]);
 
