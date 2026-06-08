@@ -62,6 +62,7 @@
     .filter-row .form-group { flex: 1; min-width: 130px; }
     .btn-filter { padding: 10px 18px; background: #ff6b00; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
     .btn-print  { padding: 10px 18px; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+    .btn-export { padding: 10px 18px; background: #1e88e5; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
 
     .report-section { margin-bottom: 18px; }
     .report-section h3 { color: #ff6b00; margin-bottom: 8px; font-size: 0.95rem; }
@@ -259,6 +260,7 @@
         </div>
         <button class="btn-filter" onclick="renderReport()">🔍 Get Report</button>
         <button class="btn-print"  onclick="window.print()">🖨️ Print</button>
+        <button class="btn-export" onclick="exportReportCSV()">🗂️ Export CSV</button>
       </div>
       <div class="report-section">
         <h3>Collection Details</h3>
@@ -284,6 +286,9 @@
     <!-- Tab 4: Summary -->
     <div id="tab-summary" class="tab-content">
       <h2>📈 Overall Summary</h2>
+      <div style="text-align:right;margin-bottom:10px">
+        <button class="btn-export" onclick="exportSummaryCSV()">🗂️ Export CSV</button>
+      </div>
       <div class="summary-filter">
         <label>Financial Year</label>
         <select id="s-fin-year" onchange="renderSummary()"><option value="">-- All Years --</option><option value="2026-2027" selected>2026-2027</option></select>
@@ -661,6 +666,87 @@
           <td style="font-weight:600;color:${bal>=0?'#43a047':'#e53935'}">${fmt(bal)}</td></tr>`;
       }).join('');
     }
+
+    // ── CSV Export ────────────────────────────────────────────────
+    function downloadCSV(filename, rows) {
+      const csv = rows.map(r => r.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    window.exportReportCSV = function () {
+      const from = document.getElementById('r-from').value;
+      const to   = document.getElementById('r-to').value;
+      const areaFilter = document.getElementById('r-area-value').value;
+
+      const cols = [...collections]
+        .filter(r => (!from || r.date >= from) && (!to || r.date <= to) && (!areaFilter || r.area === areaFilter))
+        .sort((a,b) => a.date.localeCompare(b.date));
+      const exps = [...expenses]
+        .filter(r => (!from || r.date >= from) && (!to || r.date <= to))
+        .sort((a,b) => a.date.localeCompare(b.date));
+
+      const totalCol = cols.reduce((s,r) => s + r.total,  0);
+      const totalExp = exps.reduce((s,r) => s + r.amount, 0);
+
+      const rows = [];
+      rows.push(['--- COLLECTION DETAILS ---']);
+      rows.push(['Fin Year','Date','Collected By','Area','Sub Area','GPay','Cash','Total','Verified By']);
+      cols.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.collectedBy, r.area, r.subArea||'', r.gpay, r.cash, r.total, r.verifiedBy||'']));
+      rows.push(['','','','','','','','Total Collection', totalCol]);
+      rows.push([]);
+      rows.push(['--- EXPENSE DETAILS ---']);
+      rows.push(['Fin Year','Date','Expense','Done By','Amount','Through','Verified By','Remark']);
+      exps.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.expenseName, r.doneBy, r.amount, r.through, r.verifiedBy||'', r.remark||'']));
+      rows.push(['','','','Total Expense', totalExp]);
+      rows.push([]);
+      rows.push(['Net Balance', totalCol - totalExp]);
+
+      const label = (from && to) ? `${from}_to_${to}` : 'all';
+      downloadCSV(`Report_${label}.csv`, rows);
+      showToast('✅ Report exported!', '#1e88e5');
+    };
+
+    window.exportSummaryCSV = function () {
+      const fy = document.getElementById('s-fin-year').value;
+      const filteredCols = fy ? collections.filter(r => r.finYear === fy) : collections;
+      const filteredExps = fy ? expenses.filter(r => r.finYear === fy)    : expenses;
+
+      const totalCol  = filteredCols.reduce((s,r) => s + r.total,  0);
+      const totalGpay = filteredCols.reduce((s,r) => s + r.gpay,   0);
+      const totalCash = filteredCols.reduce((s,r) => s + r.cash,   0);
+      const totalExp  = filteredExps.reduce((s,r) => s + r.amount, 0);
+      const balance   = totalCol - totalExp;
+
+      const days = {};
+      filteredCols.forEach(r => { if (!days[r.date]) days[r.date]={col:0,exp:0}; days[r.date].col += r.total; });
+      filteredExps.forEach(r => { if (!days[r.date]) days[r.date]={col:0,exp:0}; days[r.date].exp += r.amount; });
+
+      const rows = [];
+      rows.push(['--- OVERALL SUMMARY ---']);
+      rows.push(['Financial Year', fy || 'All Years']);
+      rows.push([]);
+      rows.push(['Total Collection', totalCol]);
+      rows.push(['GPay Collected',   totalGpay]);
+      rows.push(['Cash Collected',   totalCash]);
+      rows.push(['Total Expense',    totalExp]);
+      rows.push(['Final Balance',    balance]);
+      rows.push([]);
+      rows.push(['--- DAY-WISE BREAKDOWN ---']);
+      rows.push(['Date','Collection','Expense','Running Balance']);
+      let bal = 0;
+      Object.keys(days).sort().forEach(d => {
+        bal += days[d].col - days[d].exp;
+        rows.push([fmtD(d), days[d].col, days[d].exp, bal]);
+      });
+
+      const label = fy || 'AllYears';
+      downloadCSV(`Summary_${label}.csv`, rows);
+      showToast('✅ Summary exported!', '#1e88e5');
+    };
 
     // Hide loading on page load (before login)
     document.getElementById('loading').style.display = 'none';
