@@ -195,6 +195,7 @@
           <div class="form-group"><label>Sub Area</label><input type="text" name="subArea" placeholder="Sub area / Street" /></div>
           <div class="form-group"><label>GPay Amount (₹)</label><input type="number" name="gpay" min="0" step="0.01" placeholder="0.00" /></div>
           <div class="form-group"><label>Cash Amount (₹)</label><input type="number" name="cash" min="0" step="0.01" placeholder="0.00" /></div>
+          <div class="form-group"><label>Cheque Amount (₹)</label><input type="number" name="cheque" min="0" step="0.01" placeholder="0.00" /></div>
           <div class="form-group"><label>Verified By</label><input type="text" name="verifiedBy" placeholder="Verifier name" /></div>
         </div>
         <button type="submit" class="btn-submit">✅ Save Collection</button>
@@ -203,7 +204,7 @@
         <h3>Recent Collections</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Fin Year</th><th>Date</th><th>Collected By</th><th>Area</th><th>Sub Area</th><th>GPay</th><th>Cash</th><th>Total</th><th>Verified By</th><th id="col-del-th"></th></tr></thead>
+            <thead><tr><th>Fin Year</th><th>Date</th><th>Collected By</th><th>Area</th><th>Sub Area</th><th>GPay</th><th>Cash</th><th>Cheque</th><th>Total</th><th>Verified By</th><th id="col-del-th"></th></tr></thead>
             <tbody id="collection-tbody"></tbody>
           </table>
         </div>
@@ -226,6 +227,7 @@
               <option value="">-- Select --</option>
               <option value="GPay">GPay</option>
               <option value="Cash">Cash</option>
+              <option value="Cheque">Cheque</option>
             </select>
           </div>
           <div class="form-group"><label>Verified By</label><input type="text" name="verifiedBy" placeholder="Verifier name" /></div>
@@ -266,7 +268,7 @@
         <h3>Collection Details</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Fin Year</th><th>Date</th><th>Collected By</th><th>Area</th><th>Sub Area</th><th>GPay</th><th>Cash</th><th>Total</th><th>Verified By</th></tr></thead>
+            <thead><tr><th>Fin Year</th><th>Date</th><th>Collected By</th><th>Area</th><th>Sub Area</th><th>GPay</th><th>Cash</th><th>Cheque</th><th>Total</th><th>Verified By</th></tr></thead>
             <tbody id="report-col-tbody"></tbody>
           </table>
         </div>
@@ -512,20 +514,21 @@
     // ── Collection ────────────────────────────────────────────────
     document.getElementById('form-collection').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const gpay = parseFloat(this.gpay.value) || 0;
-      const cash = parseFloat(this.cash.value) || 0;
+      const gpay   = parseFloat(this.gpay.value)   || 0;
+      const cash   = parseFloat(this.cash.value)   || 0;
+      const cheque = parseFloat(this.cheque.value) || 0;
       if (!this.finYear.value)            { showToast('⚠️ Select Financial Year', '#e53935'); return; }
       if (!this.date.value)               { showToast('⚠️ Select Date', '#e53935'); return; }
       if (!this.collectedBy.value.trim()) { showToast('⚠️ Enter Collected By name', '#e53935'); return; }
       if (!document.getElementById('col-area-value').value) { showToast('⚠️ Select Area Name from dropdown', '#e53935'); return; }
-      if (gpay <= 0 && cash <= 0)         { showToast('⚠️ Enter GPay or Cash amount', '#e53935'); return; }
+      if (gpay <= 0 && cash <= 0 && cheque <= 0) { showToast('⚠️ Enter GPay, Cash or Cheque amount', '#e53935'); return; }
       if (!this.verifiedBy.value.trim())  { showToast('⚠️ Enter Verified By name', '#e53935'); return; }
       const btn = this.querySelector('.btn-submit'); btn.disabled = true;
       await addDoc(collection(db, 'collections'), {
         finYear: this.finYear.value,
         date: this.date.value, collectedBy: this.collectedBy.value.trim(),
         area: document.getElementById('col-area-value').value, subArea: this.subArea.value.trim(),
-        gpay, cash, total: gpay + cash,
+        gpay, cash, cheque, total: gpay + cash + cheque,
         verifiedBy: this.verifiedBy.value.trim(), createdAt: Date.now()
       });
       showToast('✅ Collection saved!', '#43a047');
@@ -539,11 +542,11 @@
       tbody.innerHTML = collections.length
         ? collections.map(r => `<tr>
             <td>${r.finYear||'-'}</td><td>${fmtD(r.date)}</td><td>${r.collectedBy}</td><td>${r.area}</td>
-            <td>${r.subArea||'-'}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td>
+            <td>${r.subArea||'-'}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td><td>${fmt(r.cheque||0)}</td>
             <td>${fmt(r.total)}</td><td>${r.verifiedBy||'-'}</td>
             <td>${isAdmin() ? `<button class="btn-delete" onclick="deleteC('${r.id}')">🗑</button>` : ''}</td>
           </tr>`).join('')
-        : '<tr><td colspan="9" class="no-data">No records yet</td></tr>';
+        : '<tr><td colspan="10" class="no-data">No records yet</td></tr>';
     }
 
     window.deleteC = async function (id) {
@@ -615,11 +618,11 @@
       document.getElementById('report-col-tbody').innerHTML = cols.length
         ? cols.map(r => `<tr>
             <td>${r.finYear||'-'}</td><td>${fmtD(r.date)}</td><td>${r.collectedBy}</td><td>${r.area}</td>
-            <td>${r.subArea||'-'}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td>
+            <td>${r.subArea||'-'}</td><td>${fmt(r.gpay)}</td><td>${fmt(r.cash)}</td><td>${fmt(r.cheque||0)}</td>
             <td>${fmt(r.total)}</td><td>${r.verifiedBy||'-'}</td>
           </tr>`).join('') +
-          `<tr style="font-weight:700;background:#fff8f0"><td colspan="7">Total Collection</td><td>${fmt(totalCol)}</td><td></td></tr>`
-        : '<tr><td colspan="8" class="no-data">No records in this range</td></tr>';
+          `<tr style="font-weight:700;background:#fff8f0"><td colspan="8">Total Collection</td><td>${fmt(totalCol)}</td><td></td></tr>`
+        : '<tr><td colspan="9" class="no-data">No records in this range</td></tr>';
 
       document.getElementById('report-exp-tbody').innerHTML = exps.length
         ? exps.map(r => `<tr>
@@ -639,11 +642,12 @@
       const filteredCols = fy ? collections.filter(r => r.finYear === fy) : collections;
       const filteredExps = fy ? expenses.filter(r => r.finYear === fy)    : expenses;
 
-      const totalCol  = filteredCols.reduce((s,r) => s + r.total,  0);
-      const totalGpay = filteredCols.reduce((s,r) => s + r.gpay,   0);
-      const totalCash = filteredCols.reduce((s,r) => s + r.cash,   0);
-      const totalExp  = filteredExps.reduce((s,r) => s + r.amount, 0);
-      const balance   = totalCol - totalExp;
+      const totalCol    = filteredCols.reduce((s,r) => s + r.total,        0);
+      const totalGpay   = filteredCols.reduce((s,r) => s + r.gpay,          0);
+      const totalCash   = filteredCols.reduce((s,r) => s + r.cash,          0);
+      const totalCheque = filteredCols.reduce((s,r) => s + (r.cheque||0),   0);
+      const totalExp    = filteredExps.reduce((s,r) => s + r.amount,        0);
+      const balance     = totalCol - totalExp;
 
       document.getElementById('s-total-col').textContent = fmt(totalCol);
       document.getElementById('s-gpay').textContent       = fmt(totalGpay);
@@ -694,11 +698,12 @@
 
       const rows = [];
       rows.push(['--- COLLECTION DETAILS ---']);
-      rows.push(['Fin Year','Date','Collected By','Area','Sub Area','GPay','Cash','Total','Verified By']);
-      cols.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.collectedBy, r.area, r.subArea||'', r.gpay, r.cash, r.total, r.verifiedBy||'']));
-      rows.push(['','','','','','','Total GPay', cols.reduce((s,r)=>s+r.gpay,0), '']);
-      rows.push(['','','','','','','Total Cash', cols.reduce((s,r)=>s+r.cash,0), '']);
-      rows.push(['','','','','','','Total Collection', totalCol, '']);
+      rows.push(['Fin Year','Date','Collected By','Area','Sub Area','GPay','Cash','Cheque','Total','Verified By']);
+      cols.forEach(r => rows.push([r.finYear||'', fmtD(r.date), r.collectedBy, r.area, r.subArea||'', r.gpay, r.cash, r.cheque||0, r.total, r.verifiedBy||'']));
+      rows.push(['','','','','','Total GPay',  cols.reduce((s,r)=>s+r.gpay,0),   '', '', '']);
+      rows.push(['','','','','','Total Cash',  cols.reduce((s,r)=>s+r.cash,0),   '', '', '']);
+      rows.push(['','','','','','Total Cheque','', cols.reduce((s,r)=>s+(r.cheque||0),0), '', '']);
+      rows.push(['','','','','','','','Total Collection', totalCol, '']);
       rows.push([]);
       rows.push(['--- EXPENSE DETAILS ---']);
       rows.push(['Fin Year','Date','Expense','Done By','Amount','Through','Verified By','Remark']);
@@ -734,6 +739,7 @@
       rows.push(['Total Collection', totalCol]);
       rows.push(['GPay Collected',   totalGpay]);
       rows.push(['Cash Collected',   totalCash]);
+      rows.push(['Cheque Collected', totalCheque]);
       rows.push(['Total Expense',    totalExp]);
       rows.push(['Final Balance',    balance]);
       rows.push([]);
